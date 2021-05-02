@@ -218,6 +218,16 @@ exiting."
   :type 'boolean
   :safe 'booleanp)
 
+(defcustom olivetti-enable-borders
+  t
+  "If non-nil, colorize fringes to give a border-like effect to
+`olivetti-mode' enabled buffers."
+  :type 'boolean)
+
+(defface olivetti-borders-face
+  '((t :inherit vertical-border))
+  "Face for `olivetti-set-borders'")
+
 (defcustom olivetti-excluded-buffer-regexps
   '("\\` " "\\`\\*helm" "\\`\\*ivy" "\\`\\*dashboard\\*")
   "Regexp list that match excluded buffers for `global-olivetti-mode'.
@@ -368,6 +378,15 @@ least one of them."
             (olivetti-mode -1)
           (olivetti-mode 1))))))
 
+(defun olivetti-set-borders ()
+  "If `olivetti-enable-borders' is non-nil, colorize fringes to give a
+border-like effect to `olivetti-mode' enabled buffers. Does not
+affect buffers that has non-nil value of `fringes-outside-margins'."
+  (unless fringes-outside-margins
+    (if (and olivetti-enable-borders olivetti-mode)
+        (face-remap-add-relative 'fringe 'olivetti-borders-face)
+      (face-remap-remove-relative (cons 'fringe 'olivetti-borders-face)))))
+
 
 ;;; Width Interaction
 
@@ -469,6 +488,7 @@ body width set with `olivetti-body-width'."
         (setq olivetti--visual-line-mode visual-line-mode)
         (when (called-interactively-p 'any)
           (add-to-list 'olivetti--manually-enabled-buffers (current-buffer)))
+        (olivetti-set-borders)
         (olivetti-set-buffer-windows))
     (remove-hook 'window-configuration-change-hook
                  #'olivetti-set-buffer-windows t)
@@ -478,6 +498,7 @@ body width set with `olivetti-body-width'."
                  #'olivetti-set-window t)
     (when (called-interactively-p 'any)
       (add-to-list 'olivetti--manually-enabled-buffers (current-buffer)))
+    (olivetti-set-borders)
     (olivetti-set-buffer-windows)
     (when olivetti-recall-visual-line-mode-entry-state
 	  (if olivetti--visual-line-mode
