@@ -185,6 +185,12 @@ This option does not affect file contents."
   :type 'integer
   :safe 'integerp)
 
+(defcustom olivetti-window-local
+  nil
+  "When non-nil, olivetti-mode does not affect other windows with
+the same buffer."
+  :type 'boolean)
+
 (defcustom olivetti-lighter
   " Olv"
   "Mode-line indicator for `olivetti-mode'."
@@ -365,7 +371,9 @@ care that the maximum size is 0."
 
 Cycle through all windows in all visible frames displaying the
 current buffer, and call `olivetti-set-window'."
-  (mapc #'olivetti-set-window (get-buffer-window-list nil nil 'visible)))
+  (if olivetti-window-local
+      (olivetti-set-window (selected-window))
+    (mapc #'olivetti-set-window (get-buffer-window-list nil nil 'visible))))
 
 (defun olivetti-global-set-windows ()
   "Enable `olivetti-mode' for windows that pass all
